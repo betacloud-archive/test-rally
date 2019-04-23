@@ -1,0 +1,41 @@
+{%- set glance_image_location = glance_image_location|default("http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img") %}
+{%- set image_name = image_name|default("^(Cirros|cirros).*$") %}
+{%- set flavor_name = flavor_name|default("1C-256MB-10GB") %}
+{%- set use_existing_users = use_existing_users|default(false) %}
+{%- set service_list = service_list|default(["authentication", "cinder", "nova", "glance", "neutron", "heat"]) %}
+{%- set smoke = smoke|default(true) %}
+{%- set controllers_amount = controllers_amount|default(1) %}
+{%- if smoke %}
+{%- set users_amount = 1 %}
+{%- set tenants_amount = 1 %}
+{%- else %}
+{%- set users_amount = users_amount|default(1) %}
+{%- set tenants_amount = tenants_amount|default(1) %}
+{%- endif %}
+
+{%- from "macro/macro.yaml" import user_context, vm_params, constant_runner, rps_runner, no_failures_sla, volumes, glance_args -%}
+
+---
+{% if "authentication" in service_list %}
+{%- include "scenario/authentication.yaml"-%}
+{% endif %}
+
+{% if "cinder" in service_list %}
+{%- include "scenario/cinder.yaml"-%}
+{% endif %}
+
+{% if "nova" in service_list %}
+{%- include "scenario/nova.yaml"-%}
+{% endif %}
+
+{% if "glance" in service_list %}
+{%- include "scenario/glance.yaml"-%}
+{% endif %}
+
+{% if "neutron" in service_list %}
+{%- include "scenario/neutron.yaml"-%}
+{% endif %}
+
+{% if "heat" in service_list %}
+{%- include "scenario/heat.yaml"-%}
+{% endif %}

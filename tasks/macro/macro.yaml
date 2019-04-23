@@ -1,0 +1,67 @@
+{%- macro user_context(tenants,users_per_tenant, use_existing_users, use_round_robin) -%}
+{%- if use_existing_users and caller is not defined -%} {}
+{%- else %}
+  {%- if not use_existing_users %}
+        users:
+          tenants: {{ tenants }}
+          users_per_tenant: {{ users_per_tenant }}
+          user_choice_method: {{ "round_robin" if use_round_robin else "random" }}
+  {%- endif %}
+  {%- if caller is defined %}
+    {{ caller() }}
+  {%- endif %}
+{%- endif %}
+{%- endmacro %}
+
+{%- macro vm_params(image=none, flavor=none, size=none) %}
+{%- if flavor is not none %}
+        flavor:
+          name: {{ flavor }}
+{%- endif %}
+{%- if image is not none %}
+        image:
+          name: {{ image }}
+{%- endif %}
+{%- if size is not none %}
+        size: {{ size }}
+{%- endif %}
+{%- endmacro %}
+
+{%- macro constant_runner(concurrency=1, times=1, is_smoke=True) %}
+        type: "constant"
+  {%- if is_smoke %}
+        concurrency: 1
+        times: 1
+  {%- else %}
+        concurrency: {{ concurrency }}
+        times: {{ times }}
+  {%- endif %}
+{%- endmacro %}
+
+{%- macro rps_runner(rps=1, times=1, is_smoke=True) %}
+        type: rps
+  {%- if is_smoke %}
+        rps: 1
+        times: 1
+  {%- else %}
+        rps: {{ rps }}
+        times: {{ times }}
+  {%- endif %}
+{%- endmacro %}
+
+{%- macro no_failures_sla() %}
+        failure_rate:
+          max: 0
+{%- endmacro %}
+
+{%- macro volumes(size=1, volumes_per_tenant=1) %}
+        volumes:
+          size: {{ size }}
+          volumes_per_tenant: {{ volumes_per_tenant }}
+{%- endmacro %}
+
+{%- macro glance_args(location, container="bare", type="qcow2") %}
+        container_format: {{ container }}
+        disk_format: {{ type }}
+        image_location: {{ location }}
+{%- endmacro %}
